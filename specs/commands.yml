@@ -1,0 +1,98 @@
+hana_memory_usage:
+  backend: sql
+  command: |
+    SELECT HOST, 
+           ROUND(USED_SIZE/1024/1024/1024, 2) AS USED_GB, 
+           ROUND(ALLOCATED_SIZE/1024/1024/1024, 2) AS ALLOCATED_GB
+    FROM SYS.M_MEMORY
+  required: []
+  params: {}
+
+hana_active_sessions:  # Fixed: removed extra indentation
+  backend: sql
+  command: |
+    SELECT CONNECTION_ID, USER_NAME, APPLICATION, STATEMENT_STRING
+    FROM SYS.M_CONNECTIONS
+    WHERE CONNECTION_STATUS = 'ACTIVE'
+  required: []
+  params: {}
+
+hana_top_tables_by_memory:  # Fixed: removed extra indentation
+  backend: sql
+  command: |
+    SELECT TABLE_NAME, 
+           MEMORY_SIZE_IN_TOTAL/1024/1024 AS SIZE_MB
+    FROM SYS.M_CS_TABLES
+    ORDER BY SIZE_MB DESC
+    LIMIT 10
+  required: []
+  params: {}
+
+get_instance_list:
+  command: |  # Fixed: added pipe for multiline
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:SAPHostControl">
+      <soapenv:Header/>
+      <soapenv:Body>
+        <urn:GetSystemInstanceList/>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  backend: "soap"
+  required: []
+  params: {}
+
+get_process_list:
+  command: |  # Fixed: added pipe for multiline
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:SAPHostControl">
+      <soapenv:Header/>
+      <soapenv:Body>
+        <urn:GetProcessList>
+          <host>{{.host}}</host>
+        </urn:GetProcessList>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  backend: "soap"
+  required: []
+  params: {}
+
+disk_usage:
+  command: "df -h"
+  backend: "shell"
+  required: []
+  params: {}
+
+check_http_status:
+  command: "http://{{.host}}:{{.port}}/health"
+  backend: "rest"
+  required: ["host", "port"]
+  params:
+    port: "80"
+    host: "localhost"  # Default host
+
+github_user:
+  command: "https://api.github.com/users/{{.username}}"
+  backend: "rest"
+  required: ["username"]
+  params:
+    username: "octocat"
+
+# Get a random quote
+random_quote:
+  command: "https://api.quotable.io/random"
+  backend: "rest"
+  required: []
+  params: {}
+
+# test api
+test_api:
+  command: "https://jsonplaceholder.typicode.com/posts/{{.no}}"
+  backend: "rest"
+  required: ["no"]
+  params:
+    no: "1"
+
+# fetch file information
+fetch_file_info:
+  command: "ls -lrt | grep load"
+  backend: "shell"
+  required: []
+  params: {}

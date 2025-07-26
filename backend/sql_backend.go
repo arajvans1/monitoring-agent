@@ -14,6 +14,7 @@ type SQLBackend struct {
 
 func NewSQLBackend(dsn string) *SQLBackend {
 	db, err := sql.Open("hdb", dsn)
+
 	if err != nil {
 		panic(err) // config or network issue — fail fast
 	}

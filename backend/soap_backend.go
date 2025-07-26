@@ -42,7 +42,7 @@ func (s *SOAPBackend) Execute(command string) (any, error) {
 	}
 
 	var data any
-	if err := json.Unmarshal([]byte(jsonBody.String()), &data); err != nil {
+	if err := json.Unmarshal(jsonBody.Bytes(), &data); err != nil {
 		return nil, err
 	}
 	return data, nil

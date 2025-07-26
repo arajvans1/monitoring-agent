@@ -82,3 +82,6 @@ _testmain.go
 
 # Air live reload tool
 tmp/
+
+# binarises for programs and plugins
+monitoring-agent
