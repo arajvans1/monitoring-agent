@@ -1,0 +1,17 @@
+hostname:
+  command: "hostname"
+  backend: "shell"
+  params: {}
+  required: []
+
+db_status:
+  command: "SELECT STATUS FROM SYS.M_DATABASE"
+  backend: "sql"
+  params: {}
+  required: []
+
+getprocesslist:
+  command: "<soap:Envelope><soap:Body><GetProcessList/></soap:Body></soap:Envelope>"
+  backend: "soap"
+  params: {}
+  required: []

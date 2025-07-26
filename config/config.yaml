@@ -1,0 +1,3 @@
+commandSpecPath: "./specs/commands.yml"
+soapUrl: "http://sap-system.local:50013/SAPControl.cgi"
+database: "hdb://user:password@localhost:30015"
