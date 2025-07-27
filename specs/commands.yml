@@ -2,31 +2,90 @@ hana_memory_usage:
   backend: sql
   command: |
     SELECT HOST, 
-           ROUND(USED_SIZE/1024/1024/1024, 2) AS USED_GB, 
-           ROUND(ALLOCATED_SIZE/1024/1024/1024, 2) AS ALLOCATED_GB
-    FROM SYS.M_MEMORY
+           ROUND(PHYSICAL_MEMORY_SIZE/1024/1024/1024, 2) AS TOTAL_MEMORY_GB,
+           ROUND(USED_PHYSICAL_MEMORY/1024/1024/1024, 2) AS USED_MEMORY_GB,
+           ROUND((USED_PHYSICAL_MEMORY/PHYSICAL_MEMORY_SIZE)*100, 2) AS MEMORY_USAGE_PCT
+    FROM SYS.M_HOST_RESOURCE_UTILIZATION
   required: []
   params: {}
 
 hana_active_sessions:  # Fixed: removed extra indentation
   backend: sql
   command: |
-    SELECT CONNECTION_ID, USER_NAME, APPLICATION, STATEMENT_STRING
+    SELECT CONNECTION_ID, 
+           USER_NAME, 
+           CLIENT_IP,
+           APPLICATION_NAME,
+           CONNECTION_STATUS
     FROM SYS.M_CONNECTIONS
-    WHERE CONNECTION_STATUS = 'ACTIVE'
+    WHERE CONNECTION_STATUS = 'RUNNING'
   required: []
   params: {}
 
 hana_top_tables_by_memory:  # Fixed: removed extra indentation
   backend: sql
   command: |
-    SELECT TABLE_NAME, 
-           MEMORY_SIZE_IN_TOTAL/1024/1024 AS SIZE_MB
+    SELECT SCHEMA_NAME,
+           TABLE_NAME, 
+           ROUND(MEMORY_SIZE_IN_MAIN/1024/1024, 2) AS SIZE_MB
     FROM SYS.M_CS_TABLES
+    WHERE MEMORY_SIZE_IN_MAIN > 0
     ORDER BY SIZE_MB DESC
     LIMIT 10
   required: []
   params: {}
+
+# Additional correct HANA SQL commands
+hana_database_size:
+  backend: sql
+  command: |
+    SELECT DATABASE_NAME,
+           ROUND(USED_SIZE/1024/1024/1024, 2) AS USED_SIZE_GB,
+           ROUND(ALLOCATED_SIZE/1024/1024/1024, 2) AS ALLOCATED_SIZE_GB
+    FROM SYS.M_DATABASES
+  required: []
+  params: {}
+
+hana_service_memory:
+  backend: sql
+  command: |
+    SELECT HOST,
+           SERVICE_NAME,
+           ROUND(PHYSICAL_MEMORY_SIZE/1024/1024, 2) AS PHYSICAL_MEMORY_MB,
+           ROUND(USED_PHYSICAL_MEMORY/1024/1024, 2) AS USED_MEMORY_MB
+    FROM SYS.M_SERVICE_MEMORY
+    ORDER BY USED_MEMORY_MB DESC
+  required: []
+  params: {}
+
+hana_disk_usage:
+  backend: sql
+  command: |
+    SELECT HOST,
+           USAGE_TYPE,
+           FILE_SYSTEM_USED_SIZE,
+           FILE_SYSTEM_TOTAL_SIZE,
+           ROUND((FILE_SYSTEM_USED_SIZE/FILE_SYSTEM_TOTAL_SIZE)*100, 2) AS USAGE_PCT
+    FROM SYS.M_DISK_USAGE
+    ORDER BY USAGE_PCT DESC
+  required: []
+  params: {}
+
+hana_current_statements:
+  backend: sql
+  command: |
+    SELECT CONNECTION_ID,
+           STATEMENT_ID,
+           USER_NAME,
+           APPLICATION_NAME,
+           STATEMENT_STATUS,
+           LEFT(STATEMENT_STRING, 100) AS STATEMENT_PREVIEW
+    FROM SYS.M_ACTIVE_STATEMENTS
+    ORDER BY STATEMENT_ID DESC
+    LIMIT {{.limit}}
+  required: []
+  params:
+    limit: "10"
 
 get_instance_list:
   command: |  # Fixed: added pipe for multiline
