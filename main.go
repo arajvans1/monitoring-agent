@@ -26,15 +26,17 @@ func main() {
 		"soap":  backend.NewSOAPBackend(config.SOAPURL),
 		"rest":  backend.NewRESTBackend(),
 	}
+	
+	finalHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			handleExecute(w, r, specs, backends)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 
-	http.Handle("/execute", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-    switch r.Method {
-    case http.MethodPost:
-        handleExecute(w, r, specs, backends)
-    default:
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-    }
-	}))
+	http.Handle("/execute", finalHandler)
 
 	srv := &http.Server{
 		Addr:         ":8080",
