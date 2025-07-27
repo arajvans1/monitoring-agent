@@ -1,3 +1,23 @@
+5-Line Technical Summary
+We are building a modular AI-driven monitoring system for SAP S/4HANA on Azure, combining a custom Go-based agent with a natural language interface powered by an LLM.
+The agent supports dynamic command execution across REST, SOAP, SQL, and Shell backends, with YAML-defined specs, parameter substitution, TTL-based caching, and structured logging.
+A backend chatbot orchestrates queries via LLM function calling, sending monitoring requests in natural language that the agent translates to technical calls.
+The LLM handles interpretation, context memory, and chain-of-thought reasoning to generate and refine queries.
+This system bypasses SAP ALM for flexibility, lightweight deployment, and seamless cross-layer observability in distributed environments.
+
+10-Line Technical Summary (More Detailed)
+This project builds a lightweight, extensible monitoring platform for SAP S/4HANA systems hosted on Azure.
+At its core is a custom Go-based agent capable of executing parameterized monitoring commands across SOAP, REST, SQL, and OS Shell backends.
+All commands are defined declaratively via YAML, with runtime substitution, TTL-based caching, and auto-expiry supported.
+The agent exposes a simple HTTP API, logs structured events using Zap, and maintains modular separation of backends with uniform Execute(command string) interfaces.
+The system integrates with a backend chatbot and LLM, where user prompts in natural language are converted into structured queries via function calling.
+The LLM parses intent, identifies the correct monitoring command, supplies required parameters, and interprets responses into human-readable summaries.
+We avoided SAP Cloud ALM to retain fine-grained control, avoid heavy infrastructure, and support hybrid cloud deployments.
+The agent’s design prioritizes zero external dependencies, fast startup, dynamic config reload, and safe concurrency patterns for production readiness.
+Future extensions include Prometheus metrics, config hot-reload, and rule-based anomaly detection.
+Overall, the platform enables conversational, AI-powered diagnostics across the full S/4HANA stack.
+
+
 Requirements Specification Document: Custom Monitoring Agent for SAP S/4HANA 
 1. Objective
 The purpose of this project is to build a lightweight, extensible, intelligent agent that monitors SAP S/4HANA systems running on Azure. The agent is designed to:
