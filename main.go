@@ -36,12 +36,15 @@ func main() {
     }
 	}))
 
-	log.Println("Server starting on :8080")
 	srv := &http.Server{
 		Addr:         ":8080",
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-	log.Fatal(srv.ListenAndServe())
+    ReadTimeout:  5 * time.Second,   // Reduced from 10s
+    WriteTimeout: 10 * time.Second,
+    IdleTimeout:  15 * time.Second,  // Add idle timeout
+    MaxHeaderBytes: 1 << 20,         // 1 MB max header size
+    }
+    
+  log.Printf("Server starting on %s", srv.Addr)
+  log.Fatal(srv.ListenAndServe())
 }
 
