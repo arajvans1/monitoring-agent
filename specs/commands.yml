@@ -96,3 +96,91 @@ fetch_file_info:
   backend: "shell"
   required: []
   params: {}
+
+# OS System Monitoring Commands
+system_uptime:
+  command: "uptime"
+  backend: "shell"
+  required: []
+  params: {}
+
+memory_info:
+  command: "free -h"
+  backend: "shell"
+  required: []
+  params: {}
+
+cpu_info:
+  command: "top -bn1 | grep 'Cpu(s)' | head -1"
+  backend: "shell"
+  required: []
+  params: {}
+
+network_connections:
+  command: "netstat -tuln"
+  backend: "shell"
+  required: []
+  params: {}
+
+running_processes:
+  command: "ps aux | head -{{.lines}}"
+  backend: "shell"
+  required: []
+  params:
+    lines: "10"
+
+disk_space:
+  command: "df -h {{.path}}"
+  backend: "shell"
+  required: []
+  params:
+    path: "/"
+
+check_port:
+  command: "lsof -i :{{.port}}"
+  backend: "shell"
+  required: ["port"]
+  params:
+    port: "8080"
+
+system_load:
+  command: "cat /proc/loadavg"
+  backend: "shell"
+  required: []
+  params: {}
+
+last_logins:
+  command: "last -n {{.count}}"
+  backend: "shell"
+  required: []
+  params:
+    count: "5"
+
+check_service:
+  command: "systemctl status {{.service}}"
+  backend: "shell"
+  required: ["service"]
+  params:
+    service: "ssh"
+
+kernel_version:
+  command: "uname -a"
+  backend: "shell"
+  required: []
+  params: {}
+
+environment_variables:
+  command: "env | grep {{.var}}"
+  backend: "shell"
+  required: []
+  params:
+    var: "PATH"
+
+find_large_files:
+  command: "find {{.path}} -type f -size +{{.size}} -exec ls -lh {} \\; 2>/dev/null | head -{{.count}}"
+  backend: "shell"
+  required: []
+  params:
+    path: "/var/log"
+    size: "10M"
+    count: "5"
